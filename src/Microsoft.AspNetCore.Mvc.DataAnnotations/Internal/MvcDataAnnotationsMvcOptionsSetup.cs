@@ -17,6 +17,15 @@ namespace Microsoft.AspNetCore.Mvc.DataAnnotations.Internal
         private readonly IOptions<MvcDataAnnotationsLocalizationOptions> _dataAnnotationLocalizationOptions;
 
         public MvcDataAnnotationsMvcOptionsSetup(
+    IValidationAttributeAdapterProvider validationAttributeAdapterProvider,
+    IOptions<MvcDataAnnotationsLocalizationOptions> dataAnnotationLocalizationOptions,
+    IStringLocalizerFactory stringLocalizerFactory)
+    : this(validationAttributeAdapterProvider, dataAnnotationLocalizationOptions)
+        {
+            _stringLocalizerFactory = stringLocalizerFactory;
+        }
+
+        public MvcDataAnnotationsMvcOptionsSetup(
             IValidationAttributeAdapterProvider validationAttributeAdapterProvider,
             IOptions<MvcDataAnnotationsLocalizationOptions> dataAnnotationLocalizationOptions)
         {
@@ -32,15 +41,6 @@ namespace Microsoft.AspNetCore.Mvc.DataAnnotations.Internal
 
             _validationAttributeAdapterProvider = validationAttributeAdapterProvider;
             _dataAnnotationLocalizationOptions = dataAnnotationLocalizationOptions;
-        }
-
-        public MvcDataAnnotationsMvcOptionsSetup(
-            IValidationAttributeAdapterProvider validationAttributeAdapterProvider,
-            IOptions<MvcDataAnnotationsLocalizationOptions> dataAnnotationLocalizationOptions,
-            IStringLocalizerFactory stringLocalizerFactory)
-            : this(validationAttributeAdapterProvider, dataAnnotationLocalizationOptions)
-        {
-            _stringLocalizerFactory = stringLocalizerFactory;
         }
 
         public void Configure(MvcOptions options)
