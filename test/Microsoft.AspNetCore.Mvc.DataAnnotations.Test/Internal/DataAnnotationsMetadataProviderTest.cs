@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Testing;
-using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -569,15 +568,7 @@ namespace Microsoft.AspNetCore.Mvc.DataAnnotations.Internal
                 .Setup(f => f.Create(It.IsAny<Type>()))
                 .Returns(stringLocalizer.Object);
 
-            var options = Options.Create(new MvcDataAnnotationsLocalizationOptions());
-            options.Value.DataAnnotationLocalizerProvider = (type, stringLocalizerFactory) =>
-            {
-                return stringLocalizerFactory.Create(type);
-            };
-
-            var provider = new DataAnnotationsMetadataProvider(
-                options,
-                stringLocalizerFactoryMock.Object);
+            var provider = TestModelMetadataProvider.CreateDefaultDataAnnotationsProvider(stringLocalizerFactoryMock.Object);
 
             var display = new DisplayAttribute()
             {
@@ -845,9 +836,7 @@ namespace Microsoft.AspNetCore.Mvc.DataAnnotations.Internal
                 .Setup(f => f.Create(It.IsAny<Type>()))
                 .Returns(stringLocalizer.Object);
 
-            var provider = new DataAnnotationsMetadataProvider(
-                Options.Create(new MvcDataAnnotationsLocalizationOptions()),
-                stringLocalizerFactory.Object);
+            var provider = TestModelMetadataProvider.CreateDefaultDataAnnotationsProvider(stringLocalizerFactory.Object);
 
             // Act
             provider.CreateDisplayMetadata(context);
@@ -1269,8 +1258,11 @@ namespace Microsoft.AspNetCore.Mvc.DataAnnotations.Internal
                 .Setup(factory => factory.Create(typeof(EnumWithLocalizedDisplayNames)))
                 .Returns(stringLocalizer.Object);
 
+            var options = Options.Create(new MvcDataAnnotationsLocalizationOptions());
+            options.Value.DataAnnotationLocalizerProvider = (modelType, slf) => slf.Create(modelType);
+
             return new DataAnnotationsMetadataProvider(
-                Options.Create(new MvcDataAnnotationsLocalizationOptions()),
+                options,
                 useStringLocalizer ? stringLocalizerFactory.Object : null);
         }
 
