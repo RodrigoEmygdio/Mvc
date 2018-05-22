@@ -19,8 +19,11 @@ namespace Microsoft.AspNetCore.Mvc.DataAnnotations.Internal
                 throw new ArgumentNullException(nameof(options));
             }
 
-            options.DataAnnotationLocalizerProvider = (modelType, stringLocalizerFactory) =>
-                stringLocalizerFactory.Create(modelType);
+            if (options.DataAnnotationLocalizerProvider == null)
+            {
+                options.DataAnnotationLocalizerProvider = (modelType, stringLocalizerFactory) =>
+                    stringLocalizerFactory.Create(modelType);
+            }
         }
     }
 }

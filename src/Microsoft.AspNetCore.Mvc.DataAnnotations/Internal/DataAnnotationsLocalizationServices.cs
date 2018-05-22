@@ -26,6 +26,8 @@ namespace Microsoft.AspNetCore.Mvc.DataAnnotations.Internal
                     ServiceDescriptor.Transient
                     <IConfigureOptions<MvcDataAnnotationsLocalizationOptions>,
                     MvcDataAnnotationsLocalizationOptionsSetup>());
+                services.TryAddEnumerable(
+                    ServiceDescriptor.Transient<IPostConfigureOptions<MvcDataAnnotationsLocalizationOptions>, MvcDataAnnotationsLocalizationConfigureCompatibilityOptions>());
             }
         }
     }
