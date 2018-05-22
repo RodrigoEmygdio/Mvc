@@ -156,15 +156,8 @@ namespace Microsoft.AspNetCore.Mvc.Internal
                 {
                     bindingSource = InferBindingSourceForParameter(parameter);
 
-                    var originalBindingInfo = parameter.BindingInfo;
-
-                    parameter.BindingInfo = new BindingInfo
-                    {
-                        BindingSource = bindingSource,
-                        BinderModelName = originalBindingInfo?.BinderModelName,
-                        PropertyFilterProvider = originalBindingInfo?.PropertyFilterProvider,
-                        RequestPredicate = originalBindingInfo?.RequestPredicate
-                    };
+                    parameter.BindingInfo = parameter.BindingInfo ?? new BindingInfo();
+                    parameter.BindingInfo.BindingSource = bindingSource;
                 }
             }
 

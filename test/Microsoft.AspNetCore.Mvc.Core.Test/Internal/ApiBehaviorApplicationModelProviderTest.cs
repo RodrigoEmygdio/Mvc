@@ -715,8 +715,8 @@ Environment.NewLine + "int b";
         public void PreservesBindingSourceInference_ForParameterWithRequestPredicateAndPropertyFilterProvider()
         {
             // Arrange
-            var expectedPredicate = new CustomRequestPredicateAndPropertyFilterProviderAttribute().RequestPredicate;
-            var expectedPropertyFilter = new CustomRequestPredicateAndPropertyFilterProviderAttribute().PropertyFilter;
+            var expectedPredicate = CustomRequestPredicateAndPropertyFilterProviderAttribute.RequestPredicateStatic;
+            var expectedPropertyFilter = CustomRequestPredicateAndPropertyFilterProviderAttribute.PropertyFilterStatic;
             var modelMetadataProvider = TestModelMetadataProvider.CreateDefaultProvider();
             var actionName = nameof(ParameterBindingController.ParameterWithRequestPredicateProvider);
             var context = GetContext(typeof(ParameterBindingController), modelMetadataProvider);
@@ -1008,8 +1008,7 @@ Environment.NewLine + "int b";
 
             [HttpGet("parameter-with-model-binder-attribute")]
             public IActionResult ModelBinderAttribute([ModelBinder(Name = "top")] int value) => null;
-
-
+            
             [HttpGet("parameter-with-fromquery")]
             public IActionResult FromQuery([FromQuery] int value) => null;
 
@@ -1040,9 +1039,12 @@ Environment.NewLine + "int b";
 
         private class CustomRequestPredicateAndPropertyFilterProviderAttribute : Attribute, IRequestPredicateProvider, IPropertyFilterProvider
         {
-            public Func<ActionContext, bool> RequestPredicate => (c) => true;
+            public static Func<ActionContext, bool> RequestPredicateStatic => (c) => true;
+            public static Func<ModelMetadata, bool> PropertyFilterStatic => (c) => true;
 
-            public Func<ModelMetadata, bool> PropertyFilter => (c) => true;
+            public Func<ActionContext, bool> RequestPredicate => RequestPredicateStatic;
+
+            public Func<ModelMetadata, bool> PropertyFilter => PropertyFilterStatic;
         }
 
         [ApiController]
@@ -1053,10 +1055,10 @@ Environment.NewLine + "int b";
             public IActionResult ModelBinderAttributeWithExplicitModelName([ModelBinder(Name = "top")] int value) => null;
 
             [HttpGet]
-            public IActionResult ModelBinderType([ModelBinder(typeof(UpperCaseBinder))] string name) => null;
+            public IActionResult ModelBinderType([ModelBinder(typeof(TestModelBinder))] string name) => null;
 
             [HttpGet]
-            public IActionResult ModelBinderTypeWithExplicitModelName([ModelBinder(typeof(UpperCaseBinder), Name = "foo")] string name) => null;
+            public IActionResult ModelBinderTypeWithExplicitModelName([ModelBinder(typeof(TestModelBinder), Name = "foo")] string name) => null;
         }
 
         [ApiController]
@@ -1152,7 +1154,7 @@ Environment.NewLine + "int b";
             public long Longitude { get; set; }
         }
 
-        private class UpperCaseBinder : IModelBinder
+        private class TestModelBinder : IModelBinder
         {
             public Task BindModelAsync(ModelBindingContext bindingContext)
             {

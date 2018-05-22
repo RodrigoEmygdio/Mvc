@@ -181,11 +181,25 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
             var expected = "From TestModelBinder: Hello!";
 
             // Act
-            var response = await Client.GetAsync("/contact/ActionWithInferredModelBinderType?bar=Hello!");
+            var response = await Client.GetAsync("/contact/ActionWithInferredModelBinderType?foo=Hello!");
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var result = await response.Content.ReadAsStringAsync();
+            Assert.Equal(expected, result);
+        }
 
+        [Fact]
+        public async Task ActionsWithApiBehavior_InferModelBinderTypeWithExplicitModelName()
+        {
+            // Arrange
+            var expected = "From TestModelBinder: Hello!";
+
+            // Act
+            var response = await Client.GetAsync("/contact/ActionWithInferredModelBinderTypeWithExplicitModelName?bar=Hello!");
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var result = await response.Content.ReadAsStringAsync();
             Assert.Equal(expected, result);
         }
