@@ -61,9 +61,9 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
 
             public bool MoveNext()
             {
-                _index++;
                 if (_members != null)
                 {
+                    _index++;
                     if (_index >= _members.Length)
                     {
                         return false;

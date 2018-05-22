@@ -89,9 +89,6 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures.Internal
                     return cachedFunc(model);
                 }
 
-                // CachedExpressionCompiler returns null if the expression cannot be cached. In this event, fall back to 
-                // compiling the expression. The compiled expression does not handle null models or null intermediary models
-                // which need to be handled here.
                 var func = expression.Compile();
                 try
                 {

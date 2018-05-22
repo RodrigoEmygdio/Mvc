@@ -26,6 +26,21 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
         }
 
         [Fact]
+        public void Process_CachesIdentityExpression()
+        {
+            // Arrange
+            var expression = GetTestModelExpression(m => m);
+
+            // Act
+            var func1 = CachedExpressionCompiler.Process(expression);
+            var func2 = CachedExpressionCompiler.Process(expression);
+
+            // Assert
+            Assert.NotNull(func1);
+            Assert.Same(func1, func2);
+        }
+
+        [Fact]
         public void Process_ConstLookup()
         {
             // Arrange
@@ -108,6 +123,21 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
         }
 
         [Fact]
+        public void Process_CachesStaticFieldAccess()
+        {
+            // Arrange
+            var expression = GetTestModelExpression(m => TestModel.StaticField);
+
+            // Act
+            var func1 = CachedExpressionCompiler.Process(expression);
+            var func2 = CachedExpressionCompiler.Process(expression);
+
+            // Assert
+            Assert.NotNull(func1);
+            Assert.Same(func1, func2);
+        }
+
+        [Fact]
         public void Process_StaticPropertyAccess()
         {
             // Arrange
@@ -123,6 +153,21 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
             Assert.NotNull(func);
             var result = func(model);
             Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void Process_CachesStaticPropertyAccess()
+        {
+            // Arrange
+            var expression = GetTestModelExpression(m => TestModel.StaticProperty);
+
+            // Act
+            var func1 = CachedExpressionCompiler.Process(expression);
+            var func2 = CachedExpressionCompiler.Process(expression);
+
+            // Assert
+            Assert.NotNull(func1);
+            Assert.Same(func1, func2);
         }
 
         [Fact]
@@ -174,21 +219,6 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
         }
 
         [Fact]
-        public void Process_ConstantMember_WithNullConstant()
-        {
-            // Arrange
-            var differentModel = (DifferentModel)null;
-            var model = new TestModel();
-            var expression = GetTestModelExpression(m => differentModel.Name);
-
-            // Act
-            var func = CachedExpressionCompiler.Process(expression);
-
-            // Assert
-            Assert.Throws<NullReferenceException>(() => func(model));
-        }
-
-        [Fact]
         public void Process_SimpleMemberAccess()
         {
             // Arrange
@@ -202,6 +232,21 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
             Assert.NotNull(func);
             var result = func(model);
             Assert.Equal("Test", result);
+        }
+
+        [Fact]
+        public void Process_CachesSimpleMemberAccess()
+        {
+            // Arrange
+            var expression = GetTestModelExpression(m => m.Name);
+
+            // Act
+            var func1 = CachedExpressionCompiler.Process(expression);
+            var func2 = CachedExpressionCompiler.Process(expression);
+
+            // Assert
+            Assert.NotNull(func1);
+            Assert.Same(func1, func2);
         }
 
         [Fact]
@@ -429,6 +474,36 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
             Assert.NotNull(func);
             var result = func(model);
             Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void Process_CachesChainedMemberAccess()
+        {
+            // Arrange
+            var expression = GetTestModelExpression(m => m.DifferentModel.Name);
+
+            // Act
+            var func1 = CachedExpressionCompiler.Process(expression);
+            var func2 = CachedExpressionCompiler.Process(expression);
+
+            // Assert
+            Assert.NotNull(func1);
+            Assert.Same(func1, func2);
+        }
+
+        [Fact]
+        public void Process_CachesChainedMemberAccess_ToValueType()
+        {
+            // Arrange
+            var expression = GetTestModelExpression(m => m.Date.Year);
+
+            // Act
+            var func1 = CachedExpressionCompiler.Process(expression);
+            var func2 = CachedExpressionCompiler.Process(expression);
+
+            // Assert
+            Assert.NotNull(func1);
+            Assert.Same(func1, func2);
         }
 
         [Fact]

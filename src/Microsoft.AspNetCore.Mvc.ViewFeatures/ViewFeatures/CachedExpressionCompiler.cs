@@ -250,8 +250,6 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
                     return;
                 }
 
-                var leftParameter = Expression.Parameter(invokingExpression.Type);
-
                 // NullableStruct.Member or Class.Member
                 // type is Nullable ? (value == null) : object.ReferenceEquals(value, null)
                 var nullTest = isNullableValueType ?
