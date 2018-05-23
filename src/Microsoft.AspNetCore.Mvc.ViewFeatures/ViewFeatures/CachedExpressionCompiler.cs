@@ -20,9 +20,9 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
             modifiers: null);
 
         /// <remarks>
-        /// This is the entry point to the cached expression compilation system. The system
+        /// This is the entry point to the expression compilation system. The system
         /// a) Will rewrite the expression to avoid null refs when any part of the expression tree is evaluated  to null
-        /// b) Cache the resulting delegate
+        /// b) Attempt to cache the result, an intermediate part of the result.
         /// If the provided expression is particularly obscure and the system doesn't know how to handle it, it will
         /// return null.
         /// </remarks>

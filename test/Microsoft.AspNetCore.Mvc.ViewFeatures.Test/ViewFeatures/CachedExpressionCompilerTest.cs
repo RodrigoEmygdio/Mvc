@@ -29,11 +29,12 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
         public void Process_CachesIdentityExpression()
         {
             // Arrange
-            var expression = GetTestModelExpression(m => m);
+            var expression1 = GetTestModelExpression(m => m);
+            var expression2 = GetTestModelExpression(m => m);
 
             // Act
-            var func1 = CachedExpressionCompiler.Process(expression);
-            var func2 = CachedExpressionCompiler.Process(expression);
+            var func1 = CachedExpressionCompiler.Process(expression1);
+            var func2 = CachedExpressionCompiler.Process(expression2);
 
             // Assert
             Assert.NotNull(func1);
@@ -77,7 +78,6 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
         public void Process_ConstLookup_WithNullModel()
         {
             // Arrange
-            var model = new TestModel();
             var differentModel = new DifferentModel();
             var expression = GetTestModelExpression(m => differentModel);
 
@@ -88,6 +88,54 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
             Assert.NotNull(func);
             var result = func(null);
             Assert.Same(differentModel, result);
+        }
+
+        [Fact]
+        public void Process_ConstLookup_UsingCachedValue()
+        {
+            // Arrange
+            var model = new TestModel();
+            var differentModel = new DifferentModel();
+            var expression1 = GetTestModelExpression(m => differentModel);
+            var expression2 = GetTestModelExpression(m => differentModel);
+
+            // Act - 1
+            var func1 = CachedExpressionCompiler.Process(expression1);
+
+            // Assert - 1
+            var result1 = func1(null);
+            Assert.Same(differentModel, result1);
+
+            // Act - 2
+            var func2 = CachedExpressionCompiler.Process(expression2);
+
+            // Assert - 2
+            var result2 = func1(null);
+            Assert.Same(differentModel, result2);
+        }
+
+        [Fact]
+        public void Process_ConstLookup_WhenConstantValueChanges()
+        {
+            // Arrange
+            var model = new TestModel();
+            var differentModel = new DifferentModel();
+            var expression = GetTestModelExpression(m => differentModel);
+
+            // Act
+            var func = CachedExpressionCompiler.Process(expression);
+
+            // Assert - 1
+            var result1 = func(null);
+            Assert.Same(differentModel, result1);
+
+            // Act - 2
+            differentModel = new DifferentModel();
+
+            // Assert - 2
+            var result2 = func(null);
+            Assert.NotSame(differentModel, result1);
+            Assert.Same(differentModel, result2);
         }
 
         [Fact]
@@ -126,11 +174,12 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
         public void Process_CachesStaticFieldAccess()
         {
             // Arrange
-            var expression = GetTestModelExpression(m => TestModel.StaticField);
+            var expression1 = GetTestModelExpression(m => TestModel.StaticField);
+            var expression2 = GetTestModelExpression(m => TestModel.StaticField);
 
             // Act
-            var func1 = CachedExpressionCompiler.Process(expression);
-            var func2 = CachedExpressionCompiler.Process(expression);
+            var func1 = CachedExpressionCompiler.Process(expression1);
+            var func2 = CachedExpressionCompiler.Process(expression2);
 
             // Assert
             Assert.NotNull(func1);
@@ -159,11 +208,12 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
         public void Process_CachesStaticPropertyAccess()
         {
             // Arrange
-            var expression = GetTestModelExpression(m => TestModel.StaticProperty);
+            var expression1 = GetTestModelExpression(m => TestModel.StaticProperty);
+            var expression2 = GetTestModelExpression(m => TestModel.StaticProperty);
 
             // Act
-            var func1 = CachedExpressionCompiler.Process(expression);
-            var func2 = CachedExpressionCompiler.Process(expression);
+            var func1 = CachedExpressionCompiler.Process(expression1);
+            var func2 = CachedExpressionCompiler.Process(expression2);
 
             // Assert
             Assert.NotNull(func1);
@@ -238,11 +288,12 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
         public void Process_CachesSimpleMemberAccess()
         {
             // Arrange
-            var expression = GetTestModelExpression(m => m.Name);
+            var expression1 = GetTestModelExpression(m => m.Name);
+            var expression2 = GetTestModelExpression(m => m.Name);
 
             // Act
-            var func1 = CachedExpressionCompiler.Process(expression);
-            var func2 = CachedExpressionCompiler.Process(expression);
+            var func1 = CachedExpressionCompiler.Process(expression1);
+            var func2 = CachedExpressionCompiler.Process(expression2);
 
             // Assert
             Assert.NotNull(func1);
@@ -480,11 +531,12 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
         public void Process_CachesChainedMemberAccess()
         {
             // Arrange
-            var expression = GetTestModelExpression(m => m.DifferentModel.Name);
+            var expression1 = GetTestModelExpression(m => m.DifferentModel.Name);
+            var expression2 = GetTestModelExpression(m => m.DifferentModel.Name);
 
             // Act
-            var func1 = CachedExpressionCompiler.Process(expression);
-            var func2 = CachedExpressionCompiler.Process(expression);
+            var func1 = CachedExpressionCompiler.Process(expression1);
+            var func2 = CachedExpressionCompiler.Process(expression2);
 
             // Assert
             Assert.NotNull(func1);
@@ -495,11 +547,12 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
         public void Process_CachesChainedMemberAccess_ToValueType()
         {
             // Arrange
-            var expression = GetTestModelExpression(m => m.Date.Year);
+            var expression1 = GetTestModelExpression(m => m.Date.Year);
+            var expression2 = GetTestModelExpression(m => m.Date.Year);
 
             // Act
-            var func1 = CachedExpressionCompiler.Process(expression);
-            var func2 = CachedExpressionCompiler.Process(expression);
+            var func1 = CachedExpressionCompiler.Process(expression1);
+            var func2 = CachedExpressionCompiler.Process(expression2);
 
             // Assert
             Assert.NotNull(func1);
@@ -752,7 +805,7 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
         }
 
         [Fact]
-        public void Process_ConstantMemberAccess_ReturnsNull()
+        public void Process_MemberAccessOnCapturedVariable_ReturnsNull()
         {
             // Arrange
             var differentModel = new DifferentModel { Name = "Test" };
@@ -763,6 +816,40 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
 
             // Assert
             Assert.Null(func);
+        }
+
+        [Fact]
+        public void Process_CapturedVariable()
+        {
+            // Arrange
+            var differentModel = new DifferentModel();
+            var model = new TestModel();
+            var expression = GetTestModelExpression(m => differentModel);
+
+            // Act
+            var func = CachedExpressionCompiler.Process(expression);
+
+            // Assert
+            Assert.NotNull(func);
+            var result = func(model);
+            Assert.Same(differentModel, result);
+        }
+
+        [Fact]
+        public void Process_CapturedVariable_WithNullModel()
+        {
+            // Arrange
+            var differentModel = new DifferentModel();
+            var model = (TestModel)null;
+            var expression = GetTestModelExpression(m => differentModel);
+
+            // Act
+            var func = CachedExpressionCompiler.Process(expression);
+
+            // Assert
+            Assert.NotNull(func);
+            var result = func(model);
+            Assert.Same(differentModel, result);
         }
 
         [Fact]
